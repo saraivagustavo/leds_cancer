@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { ThemeProvider, CssBaseline } from '@mui/material'
 
-import { router } from './router'
-import { theme } from './themes'
+import { router } from '@/router'
+import { theme } from '@/themes/themes'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
