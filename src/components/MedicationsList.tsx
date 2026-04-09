@@ -11,13 +11,13 @@ interface MedicationListProps {
 export const MedicationList = ({ medications, onChange }: MedicationListProps) => {
   
   const addMedication = () => {
-    const newMed: IMedication = {
+    const newMedication: IMedication = {
       id: crypto.randomUUID(),
       name: '',
       dosage: '',
       instructions: ''
     };
-    onChange([...medications, newMed]);
+    onChange([...medications, newMedication]);
   };
 
   const removeMedication = (id: string) => {
