@@ -1,14 +1,22 @@
 import { type IPrescription } from '@/contracts/Prescription';
 
-// Simula o salvamento de uma receita no banco de dados
+const STORAGE_KEY = 'myhealth:prescriptions';
+
 export const savePrescription = async (prescription: IPrescription): Promise<void> => {
   console.log('Dados validados pelo contrato:', prescription);
-  
-  // Aqui no futuro você usaria fetch ou axios para enviar ao backend
+
   return new Promise((resolve) => {
     setTimeout(() => {
+      const existing = getPrescriptions();
+      const withId = { ...prescription, id: crypto.randomUUID() };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...existing, withId]));
       alert(`Receita para ${prescription.patientName} gerada com sucesso!`);
       resolve();
     }, 1000);
   });
+};
+
+export const getPrescriptions = (): IPrescription[] => {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  return raw ? (JSON.parse(raw) as IPrescription[]) : [];
 };

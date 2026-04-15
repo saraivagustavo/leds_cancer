@@ -3,6 +3,7 @@ import App from '@/App'
 import { Home } from '@/app/pages/Home'
 import { About } from '@/app/pages/About'
 import { PrescriptionPage } from './app/pages/prescription'
+import { PatientPage } from './app/pages/patient'
 
 export const router = createBrowserRouter(
   [
@@ -21,6 +22,10 @@ export const router = createBrowserRouter(
         {
           path: 'prescription',
           element: <PrescriptionPage />,
+        },
+        {
+          path: 'my-prescriptions',
+          element: <PatientPage />,
         },
       ],
     },

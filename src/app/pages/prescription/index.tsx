@@ -8,6 +8,7 @@ export const PrescriptionPage = () => {
   const { handleSave, loading, errors, setErrors } = usePrescription();
   
   const [formData, setFormData] = useState<Partial<IPrescription>>({
+    doctorName: '',
     patientName: '',
     observations: '',
     medications: []
@@ -19,7 +20,7 @@ export const PrescriptionPage = () => {
   const onSave = async () => {
     const success = await handleSave(formData as IPrescription);
     if (success) {
-      setFormData({ patientName: '', observations: '', medications: [] });
+      setFormData({ doctorName: '', patientName: '', observations: '', medications: [] });
     }
   };
 
@@ -32,6 +33,18 @@ export const PrescriptionPage = () => {
     <Box sx={{ maxWidth: 800, mx: 'auto' }}>
       <Typography variant="h4" gutterBottom>Gerar Receita Virtual</Typography>
       
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>Dados do Médico</Typography>
+        <TextField
+          fullWidth
+          label="Nome do Médico"
+          value={formData.doctorName}
+          onChange={(e) => updateField('doctorName', e.target.value)}
+          error={!!getFieldError('doctorName')}
+          helperText={getFieldError('doctorName')}
+        />
+      </Paper>
+
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>Dados do Paciente</Typography>
         <Grid container spacing={2}>
