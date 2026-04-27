@@ -23,8 +23,9 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import InboxIcon from '@mui/icons-material/Inbox';
 import { useState } from 'react';
-import { type IPrescription } from '@/contracts/Prescription';
-import { usePatientPrescriptions } from '@/modules/prescription/usePatientPrescriptions';
+import { type IPrescription } from '@/features/prescription/types';
+import { usePatientPrescriptions } from '@/features/prescription/hooks/usePatientPrescriptions';
+import { useDoctorPrescriptions } from '@/features/prescription/hooks/useDoctorPrescriptions';
 
 const formatDate = (date: string) => {
   if (!date) return '—';
@@ -122,19 +123,103 @@ function PrescriptionDetail({
   );
 }
 
-export function PatientPage() {
-  const { prescriptions } = usePatientPrescriptions();
+// Card de receita — exibe campo diferente no título dependendo do modo
+function PrescriptionCard({
+  prescription,
+  mode,
+  onClick,
+}: {
+  prescription: IPrescription;
+  mode: 'doctor' | 'patient';
+  onClick: () => void;
+}) {
+  return (
+    <Card
+      elevation={2}
+      sx={{
+        borderRadius: 3,
+        height: '100%',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        '&:hover': { transform: 'translateY(-3px)', boxShadow: 6 },
+      }}
+    >
+      <CardActionArea onClick={onClick} sx={{ height: '100%', p: 1 }}>
+        <CardContent>
+          <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
+            <Typography variant="h6" fontWeight={600} noWrap>
+              {mode === 'doctor' ? prescription.patientName : prescription.doctorName || 'Médico não informado'}
+            </Typography>
+            <Chip
+              label={`${prescription.medications.length} med.`}
+              size="small"
+              color="primary"
+              variant="outlined"
+            />
+          </Box>
+
+          <Box display="flex" alignItems="center" gap={0.5} mb={0.5}>
+            {mode === 'doctor' ? (
+              <>
+                <PersonIcon fontSize="small" color="action" />
+                <Typography variant="body2" color="text.secondary">
+                  {prescription.patientName}
+                </Typography>
+              </>
+            ) : (
+              <>
+                <LocalHospitalIcon fontSize="small" color="action" />
+                <Typography variant="body2" color="text.secondary">
+                  {prescription.doctorName || 'Médico não informado'}
+                </Typography>
+              </>
+            )}
+          </Box>
+
+          <Box display="flex" alignItems="center" gap={0.5} mb={2}>
+            <CalendarTodayIcon fontSize="small" color="action" />
+            <Typography variant="body2" color="text.secondary">
+              {formatDate(prescription.date)}
+            </Typography>
+          </Box>
+
+          <Divider sx={{ mb: 1.5 }} />
+
+          <Typography variant="caption" color="text.secondary">Medicamentos:</Typography>
+          <Box display="flex" flexWrap="wrap" gap={0.5} mt={0.5}>
+            {prescription.medications.slice(0, 3).map((med) => (
+              <Chip key={med.id} label={med.name} size="small" />
+            ))}
+            {prescription.medications.length > 3 && (
+              <Chip
+                label={`+${prescription.medications.length - 3} mais`}
+                size="small"
+                variant="outlined"
+              />
+            )}
+          </Box>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+}
+
+// Componente interno que recebe as prescrições e o modo
+function PrescriptionsList({ prescriptions, mode }: { prescriptions: IPrescription[]; mode: 'doctor' | 'patient' }) {
   const [selected, setSelected] = useState<IPrescription | null>(null);
+
+  const title = mode === 'doctor' ? 'Receitas Emitidas' : 'Minhas Receitas';
+  const subtitle = mode === 'doctor'
+    ? 'Histórico de receitas que você prescreveu.'
+    : 'Visualize todas as receitas prescritas para você.';
+  const emptyMessage = mode === 'doctor'
+    ? 'Você ainda não emitiu nenhuma receita.'
+    : 'As receitas geradas pelo médico aparecerão aqui.';
 
   return (
     <Box>
       <Box mb={4}>
-        <Typography variant="h4" fontWeight={700} gutterBottom>
-          Minhas Receitas
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Visualize todas as receitas prescritas para você.
-        </Typography>
+        <Typography variant="h4" fontWeight={700} gutterBottom>{title}</Typography>
+        <Typography variant="body1" color="text.secondary">{subtitle}</Typography>
       </Box>
 
       {prescriptions.length === 0 ? (
@@ -149,72 +234,17 @@ export function PatientPage() {
         >
           <InboxIcon sx={{ fontSize: 64, opacity: 0.3 }} />
           <Typography variant="h6">Nenhuma receita encontrada</Typography>
-          <Typography variant="body2">As receitas geradas pelo médico aparecerão aqui.</Typography>
+          <Typography variant="body2">{emptyMessage}</Typography>
         </Box>
       ) : (
         <Grid container spacing={3}>
           {prescriptions.map((prescription) => (
             <Grid key={prescription.id} size={{ xs: 12, sm: 6, md: 4 }}>
-              <Card
-                elevation={2}
-                sx={{
-                  borderRadius: 3,
-                  height: '100%',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': { transform: 'translateY(-3px)', boxShadow: 6 },
-                }}
-              >
-                <CardActionArea
-                  onClick={() => setSelected(prescription)}
-                  sx={{ height: '100%', p: 1 }}
-                >
-                  <CardContent>
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
-                      <Typography variant="h6" fontWeight={600} noWrap>
-                        {prescription.patientName}
-                      </Typography>
-                      <Chip
-                        label={`${prescription.medications.length} med.`}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                      />
-                    </Box>
-
-                    <Box display="flex" alignItems="center" gap={0.5} mb={0.5}>
-                      <LocalHospitalIcon fontSize="small" color="action" />
-                      <Typography variant="body2" color="text.secondary">
-                        {prescription.doctorName || 'Médico não informado'}
-                      </Typography>
-                    </Box>
-
-                    <Box display="flex" alignItems="center" gap={0.5} mb={2}>
-                      <CalendarTodayIcon fontSize="small" color="action" />
-                      <Typography variant="body2" color="text.secondary">
-                        {formatDate(prescription.date)}
-                      </Typography>
-                    </Box>
-
-                    <Divider sx={{ mb: 1.5 }} />
-
-                    <Typography variant="caption" color="text.secondary">
-                      Medicamentos:
-                    </Typography>
-                    <Box display="flex" flexWrap="wrap" gap={0.5} mt={0.5}>
-                      {prescription.medications.slice(0, 3).map((med) => (
-                        <Chip key={med.id} label={med.name} size="small" />
-                      ))}
-                      {prescription.medications.length > 3 && (
-                        <Chip
-                          label={`+${prescription.medications.length - 3} mais`}
-                          size="small"
-                          variant="outlined"
-                        />
-                      )}
-                    </Box>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
+              <PrescriptionCard
+                prescription={prescription}
+                mode={mode}
+                onClick={() => setSelected(prescription)}
+              />
             </Grid>
           ))}
         </Grid>
@@ -225,4 +255,16 @@ export function PatientPage() {
       )}
     </Box>
   );
+}
+
+// Página do médico
+export function DoctorPrescriptionsPage() {
+  const { prescriptions } = useDoctorPrescriptions();
+  return <PrescriptionsList prescriptions={prescriptions} mode="doctor" />;
+}
+
+// Página do paciente
+export function PatientPrescriptionsPage() {
+  const { prescriptions } = usePatientPrescriptions();
+  return <PrescriptionsList prescriptions={prescriptions} mode="patient" />;
 }

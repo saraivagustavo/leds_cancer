@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { type IPrescription } from '../../contracts/Prescription';
-import { validatePrescription, type ValidationError } from './validation';
-import { savePrescription } from './services';
+import { type IPrescription } from '@/features/prescription/types';
+import { validatePrescription, type ValidationError } from '@/features/prescription/validation';
+import { savePrescription } from '@/features/prescription/services';
 
 export const usePrescription = () => {
   const [loading, setLoading] = useState(false);

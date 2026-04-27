@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { type IPrescription } from '@/contracts/Prescription';
-import { getPrescriptions } from './services';
+import { type IPrescription } from '@/features/prescription/types';
+import { getPrescriptions } from '@/features/prescription/services';
 
 export const usePatientPrescriptions = () => {
   const [prescriptions, setPrescriptions] = useState<IPrescription[]>([]);

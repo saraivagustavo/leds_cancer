@@ -1,4 +1,4 @@
-import { type IPrescription } from '../../contracts/Prescription';
+import { type IPrescription } from '@/features/prescription/types';
 
 export interface ValidationError {
   field: keyof IPrescription | 'medications';

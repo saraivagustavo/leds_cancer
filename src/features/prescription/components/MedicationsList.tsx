@@ -1,7 +1,7 @@
 import { Box, Button, TextField, Typography, IconButton, Paper, Grid } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { type IMedication } from '@/contracts/Prescription';
+import { type IMedication } from '@/features/prescription/types';
 
 interface MedicationListProps {
   medications: IMedication[];

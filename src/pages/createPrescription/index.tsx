@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Typography, TextField, Button, Box, Paper, Grid } from '@mui/material';
-import { type IPrescription } from '../../../contracts/Prescription';
-import { usePrescription } from '../../../modules/prescription/usePrescription';
-import { MedicationList } from '../../../components/MedicationsList';
+import { type IPrescription } from '@/features/prescription/types';
+import { usePrescription } from '@/features/prescription/hooks/usePrescription';
+import { MedicationList } from '@/features/prescription/components/MedicationsList';
 
 export const PrescriptionPage = () => {
   const { handleSave, loading, errors, setErrors } = usePrescription();

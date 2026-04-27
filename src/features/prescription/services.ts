@@ -1,4 +1,4 @@
-import { type IPrescription } from '@/contracts/Prescription';
+import { type IPrescription } from '@/features/prescription/types';
 
 const STORAGE_KEY = 'myhealth:prescriptions';
 
