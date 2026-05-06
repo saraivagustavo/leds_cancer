@@ -1,19 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
-import { ThemeProvider, CssBaseline } from '@mui/material'
 
 import { router } from '@/router'
-import { theme } from '@/themes/themes'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { AppThemeProvider } from '@/contexts/ColorModeContext'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <AppThemeProvider>
       <AuthProvider>
         <RouterProvider router={router} />
       </AuthProvider>
-    </ThemeProvider>
+    </AppThemeProvider>
   </React.StrictMode>
 )
