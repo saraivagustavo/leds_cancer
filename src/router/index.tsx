@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import App from '@/App';
 import { Home } from '@/pages/Home';
-import { About } from '@/pages/About';
 import { PrescriptionPage } from '../pages/createPrescription';
 import { LoginPage } from '../pages/Login';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -40,10 +39,6 @@ export const router = createBrowserRouter(
         {
           index: true,
           element: <Home />,
-        },
-        {
-          path: 'about',
-          element: <About />,
         },
         {
           path: 'prescription',
