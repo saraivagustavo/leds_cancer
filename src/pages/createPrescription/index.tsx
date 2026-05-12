@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Alert, Box, Button, Stack, Typography } from '@mui/material'
+import { Alert, Box, Button, Snackbar, Stack, Typography } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import { useAuth } from '@/contexts/AuthContext'
 import { usePrescription } from '@/features/prescription/hooks/usePrescription'
@@ -18,7 +18,7 @@ export const PrescriptionPage = () => {
   const [formData, setFormData] = useState<Partial<IPrescription>>(
     createInitialFormData(user?.name)
   )
-  const [saved, setSaved] = useState(false)
+  const [notification, setNotification] = useState('')
 
   const getFieldError = (fieldName: string) =>
     errors.find((error) => error.field === fieldName)?.message
@@ -27,14 +27,13 @@ export const PrescriptionPage = () => {
     const success = await handleSave(formData as IPrescription)
 
     if (success) {
+      setNotification(`Receita para ${formData.patientName} gerada com sucesso.`)
       setFormData(createInitialFormData(user?.name))
-      setSaved(true)
     }
   }
 
   const updateField = (field: keyof IPrescription, value: IPrescription[keyof IPrescription]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    setSaved(false)
 
     if (errors.length > 0) {
       setErrors([])
@@ -53,12 +52,6 @@ export const PrescriptionPage = () => {
       </Box>
 
       <PrescriptionSteps />
-
-      {saved && (
-        <Alert severity="success" sx={{ mb: 3 }}>
-          Receita salva com sucesso.
-        </Alert>
-      )}
 
       <Stack spacing={3}>
         <DoctorSection
@@ -90,6 +83,22 @@ export const PrescriptionPage = () => {
           {loading ? 'Salvando...' : 'Finalizar receita'}
         </Button>
       </Box>
+
+      <Snackbar
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        autoHideDuration={4000}
+        onClose={() => setNotification('')}
+        open={Boolean(notification)}
+      >
+        <Alert
+          onClose={() => setNotification('')}
+          severity="success"
+          sx={{ width: '100%' }}
+          variant="filled"
+        >
+          {notification}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }

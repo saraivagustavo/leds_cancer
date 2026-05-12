@@ -10,7 +10,6 @@ export const savePrescription = async (prescription: IPrescription): Promise<voi
       const existing = getPrescriptions();
       const withId = { ...prescription, id: crypto.randomUUID() };
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...existing, withId]));
-      alert(`Receita para ${prescription.patientName} gerada com sucesso!`);
       resolve();
     }, 1000);
   });
