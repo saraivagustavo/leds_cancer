@@ -5,11 +5,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout repository
@@ -18,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Versão estável recomendada
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -33,6 +34,6 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          personal_token: ${{ secrets.MY_HEALTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
