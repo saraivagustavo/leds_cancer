@@ -7,6 +7,12 @@ import { LoginCard } from './login/components/LoginCard'
 import { MOCK_USERS } from './login/data/authMock'
 import { roleConfig } from './login/data/roleConfig'
 
+/**
+ * Tela de login por perfil.
+ *
+ * Usa usuários mockados para manter o projeto simples, mas já deixa o fluxo com
+ * validação, redirecionamento e estado de erro como seria num login real.
+ */
 export const LoginPage = () => {
   const { login, user } = useAuth()
   const navigate = useNavigate()

@@ -14,12 +14,18 @@ type MedicationsSectionProps = {
   updateField: PrescriptionFieldUpdater
 }
 
+/**
+ * Terceiro bloco da emissão: medicamentos prescritos.
+ *
+ * Delega a parte mais interativa para `MedicationList`, mas mantém a mensagem
+ * de validação perto da seção para o médico entender o que falta.
+ */
 export const MedicationsSection = ({
   formData,
   getFieldError,
   updateField,
 }: MedicationsSectionProps) => (
-  <Paper variant="outlined" sx={{ borderRadius: 2, p: 3 }}>
+  <Paper variant="outlined" sx={{ borderRadius: 2, p: { xs: 2, sm: 3 } }}>
     <SectionHeader
       description="Adicione um ou mais medicamentos com dosagem e instruções de uso."
       icon={<MedicationIcon />}

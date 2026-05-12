@@ -6,6 +6,11 @@ type BrandButtonProps = {
   onClick: () => void
 }
 
+/**
+ * Marca clicável do sistema.
+ *
+ * Leva a pessoa de volta ao dashboard e muda a cor conforme o perfil ativo.
+ */
 export const BrandButton = ({ color, onClick }: BrandButtonProps) => (
   <Stack
     direction="row"

@@ -23,6 +23,12 @@ type PrescriptionCardProps = {
   prescription: IPrescription
 }
 
+/**
+ * Card resumido de uma receita emitida.
+ *
+ * Mostra os dados mais importantes para escanear a lista rapidamente e abre o
+ * modal de detalhes quando selecionado.
+ */
 export function PrescriptionCard({
   mode,
   onClick,
@@ -56,9 +62,14 @@ export function PrescriptionCard({
     >
       <CardActionArea onClick={onClick} sx={{ height: '100%' }}>
         <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, height: '100%' }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" gap={2}>
-            <Box>
-              <Typography variant="h6" fontWeight={800} noWrap>
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            justifyContent="space-between"
+            alignItems={{ xs: 'flex-start', sm: 'flex-start' }}
+            gap={1.5}
+          >
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="h6" fontWeight={800} sx={{ overflowWrap: 'anywhere' }}>
                 {title}
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -69,6 +80,7 @@ export function PrescriptionCard({
               label={formatPrescriptionDate(prescription.date)}
               size="small"
               sx={{
+                flex: '0 0 auto',
                 bgcolor: (theme) => theme.palette.mode === 'dark' ? config.darkBackground : config.background,
               }}
             />
@@ -77,19 +89,19 @@ export function PrescriptionCard({
           <Divider />
 
           <Stack spacing={1}>
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
               {mode === 'doctor' ? (
                 <PersonIcon fontSize="small" color="action" />
               ) : (
                 <LocalHospitalIcon fontSize="small" color="action" />
               )}
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
                 {mode === 'doctor'
                   ? `Paciente: ${prescription.patientName}`
                   : `Médico: ${prescription.doctorName || 'não informado'}`}
               </Typography>
             </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
               <MedicationIcon fontSize="small" color="action" />
               <Typography variant="body2" color="text.secondary">
                 {prescription.medications.length} medicamento(s)
@@ -98,8 +110,8 @@ export function PrescriptionCard({
           </Stack>
 
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 'auto' }}>
-            {prescription.medications.slice(0, 3).map((medication) => (
-              <Chip key={medication.id} label={medication.name} size="small" />
+            {prescription.medications.slice(0, 3).map((medication, index) => (
+              <Chip key={medication.id} label={medication.name || `Medicamento ${index + 1}`} size="small" />
             ))}
             {prescription.medications.length > 3 && (
               <Chip label={`+${prescription.medications.length - 3}`} size="small" variant="outlined" />

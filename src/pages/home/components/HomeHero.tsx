@@ -9,6 +9,12 @@ type HomeHeroProps = {
   title: string
 }
 
+/**
+ * Hero reutilizado nos dashboards.
+ *
+ * Recebe conteúdo e ações por composição para médico e paciente terem a mesma
+ * base visual, mas com mensagens e botões próprios.
+ */
 export const HomeHero = ({
   actions,
   children,

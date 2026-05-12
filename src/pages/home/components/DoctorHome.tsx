@@ -17,6 +17,12 @@ type DoctorHomeProps = {
   name?: string
 }
 
+/**
+ * Dashboard do médico.
+ *
+ * Mostra atalhos para criar receita, indicadores do histórico e um resumo do
+ * fluxo de prescrição.
+ */
 export const DoctorHome = ({ name }: DoctorHomeProps) => {
   const { prescriptions } = useDoctorPrescriptions()
   const patientCount = new Set(prescriptions.map((prescription) => prescription.patientName)).size

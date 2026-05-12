@@ -3,6 +3,12 @@ import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import { useColorMode } from '@/contexts/ColorModeContext'
 
+/**
+ * Botão de alternância entre tema claro e escuro.
+ *
+ * Fica reaproveitável para aparecer tanto na entrada do app quanto em qualquer
+ * ponto que precise desse controle.
+ */
 export const ThemeModeButton = () => {
   const { mode, toggleMode } = useColorMode()
   const isLight = mode === 'light'

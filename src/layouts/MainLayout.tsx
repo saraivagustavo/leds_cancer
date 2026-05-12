@@ -11,6 +11,12 @@ import {
   getRoleIcon,
 } from './utils/navigation'
 
+/**
+ * Layout das telas autenticadas.
+ *
+ * Concentra cabeçalho, menu de perfil, logout e o container responsivo onde as
+ * páginas entram pelo `Outlet`.
+ */
 export const MainLayout = () => {
   const { logout, user } = useAuth()
   const { mode, toggleMode } = useColorMode()
@@ -63,7 +69,7 @@ export const MainLayout = () => {
         user={user}
       />
 
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>
+      <Container maxWidth="lg" sx={{ mt: { xs: 2.5, md: 4 }, mb: { xs: 4, md: 6 }, px: { xs: 2, sm: 3 } }}>
         <Outlet />
       </Container>
     </>

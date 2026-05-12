@@ -19,6 +19,12 @@ type PatientHomeProps = {
   name?: string
 }
 
+/**
+ * Dashboard do paciente.
+ *
+ * Prioriza consulta rápida das receitas disponíveis e um resumo simples do
+ * acompanhamento.
+ */
 export const PatientHome = ({ name }: PatientHomeProps) => {
   const { prescriptions } = usePatientPrescriptions()
   const latest = prescriptions[0]

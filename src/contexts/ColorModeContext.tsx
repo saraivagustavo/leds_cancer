@@ -11,6 +11,12 @@ interface ColorModeContextType {
 const STORAGE_KEY = 'myhealth:theme-mode'
 const ColorModeContext = createContext<ColorModeContextType | null>(null)
 
+/**
+ * Decide o tema inicial olhando primeiro o que a pessoa escolheu antes.
+ *
+ * Se não tiver nada salvo, respeita a preferência do sistema operacional. É
+ * pequeno, mas deixa a experiência bem mais natural.
+ */
 const getInitialMode = (): PaletteMode => {
   const storedMode = localStorage.getItem(STORAGE_KEY)
 
@@ -21,6 +27,9 @@ const getInitialMode = (): PaletteMode => {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+/**
+ * Envolve o app com tema MUI, reset visual e controle de claro/escuro.
+ */
 export const AppThemeProvider = ({ children }: { children: ReactNode }) => {
   const [mode, setMode] = useState<PaletteMode>(getInitialMode)
 
@@ -50,6 +59,9 @@ export const AppThemeProvider = ({ children }: { children: ReactNode }) => {
   )
 }
 
+/**
+ * Hook para ler o modo atual e alternar entre tema claro e escuro.
+ */
 export const useColorMode = () => {
   const context = useContext(ColorModeContext)
 

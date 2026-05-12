@@ -14,6 +14,11 @@ type LoginRoleConfig = {
   title: string
 }
 
+/**
+ * Configuração do login por perfil.
+ *
+ * Troca textos, cores, ícones e rota de destino sem duplicar a tela de login.
+ */
 export const roleConfig: Record<UserRole, LoginRoleConfig> = {
   doctor: {
     title: 'Login médico',

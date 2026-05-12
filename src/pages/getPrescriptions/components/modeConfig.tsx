@@ -1,6 +1,12 @@
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
 import PersonIcon from '@mui/icons-material/Person'
 
+/**
+ * Configura textos, cores e ícones da listagem de receitas por perfil.
+ *
+ * Esse objeto evita vários `if` espalhados pela tela e deixa a diferença entre
+ * médico e paciente bem fácil de comparar.
+ */
 export const modeConfig = {
   doctor: {
     accent: '#0f766e',

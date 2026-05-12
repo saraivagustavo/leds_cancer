@@ -13,6 +13,12 @@ type RecentPrescriptionListProps = {
   prescriptions: IPrescription[]
 }
 
+/**
+ * Lista curta de atividade recente do dashboard.
+ *
+ * Mostra só as últimas receitas para dar contexto sem transformar a home em uma
+ * segunda tela de histórico.
+ */
 export const RecentPrescriptionList = ({
   color = 'primary',
   emptyText,

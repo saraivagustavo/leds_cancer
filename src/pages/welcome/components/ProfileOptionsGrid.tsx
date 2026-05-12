@@ -2,6 +2,12 @@ import { Box, Button, Typography } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { profileOptions } from '../data/profileOptions'
 
+/**
+ * Grade de escolha de perfil na entrada do app.
+ *
+ * Cada opção leva para o login correto, já deixando a rota carregar a
+ * configuração visual e textual daquele perfil.
+ */
 export const ProfileOptionsGrid = () => {
   const navigate = useNavigate()
 

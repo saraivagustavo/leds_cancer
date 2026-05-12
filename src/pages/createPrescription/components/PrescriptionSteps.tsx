@@ -11,15 +11,21 @@ const steps = [
   { icon: <AssignmentTurnedInIcon fontSize="small" />, label: 'Revisão' },
 ]
 
+/**
+ * Trilha visual das etapas da emissão.
+ *
+ * Não controla navegação; é só um guia rápido para situar o médico dentro do
+ * formulário.
+ */
 export const PrescriptionSteps = () => (
-  <Paper variant="outlined" sx={{ borderRadius: 2, mb: 3, p: 2 }}>
-    <Grid container spacing={1.5}>
+  <Paper variant="outlined" sx={{ borderRadius: 2, mb: 3, p: { xs: 1.5, sm: 2 } }}>
+    <Grid container spacing={{ xs: 1, sm: 1.5 }}>
       {steps.map((step, index) => (
         <Grid key={step.label} size={{ xs: 6, md: 3 }}>
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack direction="row" spacing={0.75} alignItems="center" sx={{ minWidth: 0 }}>
             <Chip label={index + 1} color="primary" size="small" />
-            <Stack sx={{ color: 'primary.main' }}>{step.icon}</Stack>
-            <Typography variant="body2" fontWeight={700}>
+            <Stack sx={{ color: 'primary.main', flex: '0 0 auto' }}>{step.icon}</Stack>
+            <Typography variant="body2" fontWeight={700} noWrap>
               {step.label}
             </Typography>
           </Stack>

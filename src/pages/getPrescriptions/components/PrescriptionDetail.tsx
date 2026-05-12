@@ -14,6 +14,8 @@ import {
   Paper,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
 import { type ReactNode } from 'react'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
@@ -31,25 +33,33 @@ type PrescriptionDetailProps = {
   prescription: IPrescription
 }
 
+/**
+ * Modal com a receita completa.
+ *
+ * No celular vira tela cheia para leitura confortável, principalmente quando a
+ * lista de medicamentos ou instruções fica grande.
+ */
 export function PrescriptionDetail({
   mode,
   onClose,
   prescription,
 }: PrescriptionDetailProps) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const config = modeConfig[mode]
 
   return (
-    <Dialog open onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open onClose={onClose} maxWidth="md" fullWidth fullScreen={isMobile}>
       <DialogTitle>
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <Box sx={{ color: config.accent, display: 'flex' }}>
+        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 0 }}>
+          <Box sx={{ color: config.accent, display: 'flex', flex: '0 0 auto' }}>
             <MedicationIcon />
           </Box>
-          <Box>
+          <Box sx={{ minWidth: 0 }}>
             <Typography variant="h6" fontWeight={800}>
               Detalhes da receita
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
               {mode === 'doctor'
                 ? `Prescrição emitida para ${prescription.patientName}`
                 : `Prescrição de ${prescription.doctorName || 'médico não informado'}`}
@@ -77,15 +87,18 @@ export function PrescriptionDetail({
         <List disablePadding>
           {prescription.medications.map((medication) => (
             <Paper key={medication.id} variant="outlined" sx={{ borderRadius: 2, mb: 1.25 }}>
-              <ListItem alignItems="flex-start">
+              <ListItem alignItems="flex-start" sx={{ px: { xs: 1.5, sm: 2 } }}>
                 <ListItemText
                   primary={
                     <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-                      <Typography fontWeight={800}>{medication.name}</Typography>
-                      <Chip label={medication.dosage} size="small" color={config.muiColor} variant="outlined" />
+                      <Typography fontWeight={800} sx={{ overflowWrap: 'anywhere' }}>{medication.name}</Typography>
+                      {medication.dosage && (
+                        <Chip label={medication.dosage} size="small" color={config.muiColor} variant="outlined" />
+                      )}
                     </Stack>
                   }
-                  secondary={medication.instructions}
+                  secondaryTypographyProps={{ sx: { overflowWrap: 'anywhere' } }}
+                  secondary={medication.instructions || 'Sem instruções informadas.'}
                 />
               </ListItem>
             </Paper>
@@ -105,8 +118,8 @@ export function PrescriptionDetail({
         )}
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} variant="contained" sx={{ borderRadius: 2, bgcolor: config.accent }}>
+      <DialogActions sx={{ p: { xs: 2, sm: 3 }, pt: 1 }}>
+        <Button fullWidth onClick={onClose} variant="contained" sx={{ borderRadius: 2, bgcolor: config.accent, maxWidth: { sm: 160 } }}>
           Fechar
         </Button>
       </DialogActions>
@@ -120,6 +133,9 @@ type InfoPanelProps = {
   value: string
 }
 
+/**
+ * Bloco pequeno de informação dentro do detalhe da receita.
+ */
 const InfoPanel = ({ icon, label, value }: InfoPanelProps) => (
   <Paper variant="outlined" sx={{ borderRadius: 2, p: 2 }}>
     <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
@@ -128,6 +144,6 @@ const InfoPanel = ({ icon, label, value }: InfoPanelProps) => (
         {label}
       </Typography>
     </Stack>
-    <Typography fontWeight={700}>{value}</Typography>
+    <Typography fontWeight={700} sx={{ overflowWrap: 'anywhere' }}>{value}</Typography>
   </Paper>
 )

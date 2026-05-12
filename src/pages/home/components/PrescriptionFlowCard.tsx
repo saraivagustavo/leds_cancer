@@ -7,6 +7,12 @@ const prescriptionSteps = [
   'Revisão e emissão',
 ]
 
+/**
+ * Card explicando o fluxo básico de emissão.
+ *
+ * Serve como lembrete rápido para o médico, principalmente quando ele acabou de
+ * entrar no sistema.
+ */
 export const PrescriptionFlowCard = () => (
   <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, height: '100%' }}>
     <Typography variant="h6" fontWeight={700} gutterBottom>

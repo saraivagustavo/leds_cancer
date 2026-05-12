@@ -1,6 +1,12 @@
 import { Box, Grid, Typography } from '@mui/material'
 import { features } from '../data/features'
 
+/**
+ * Pequena vitrine de benefícios da tela inicial.
+ *
+ * É conteúdo de apoio: ajuda a explicar o produto sem atrapalhar a escolha do
+ * perfil.
+ */
 export const FeaturesSection = () => (
   <Box sx={{ bgcolor: 'background.paper', borderRadius: 2, py: 5, px: 2, mt: 4 }}>
     <Typography variant="h5" fontWeight={600} textAlign="center" gutterBottom>

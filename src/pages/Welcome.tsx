@@ -6,6 +6,12 @@ import { FeaturesSection } from './welcome/components/FeaturesSection'
 import { ProfileOptionsGrid } from './welcome/components/ProfileOptionsGrid'
 import { WelcomeHeader } from './welcome/components/WelcomeHeader'
 
+/**
+ * Primeira tela do app.
+ *
+ * Apresenta os perfis disponíveis e evita mostrar a entrada para quem já está
+ * logado, mandando direto para o dashboard.
+ */
 export const WelcomePage = () => {
   const { user } = useAuth()
 

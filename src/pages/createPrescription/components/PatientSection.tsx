@@ -13,12 +13,15 @@ type PatientSectionProps = {
   updateField: PrescriptionFieldUpdater
 }
 
+/**
+ * Segundo bloco da emissão: paciente e data do atendimento.
+ */
 export const PatientSection = ({
   formData,
   getFieldError,
   updateField,
 }: PatientSectionProps) => (
-  <Paper variant="outlined" sx={{ borderRadius: 2, p: 3 }}>
+  <Paper variant="outlined" sx={{ borderRadius: 2, p: { xs: 2, sm: 3 } }}>
     <SectionHeader
       description="Informe para quem a receita será emitida e a data do atendimento."
       icon={<PersonIcon />}
