@@ -36,6 +36,12 @@ type ProfileMenuProps = {
   user: AuthUser | null
 }
 
+/**
+ * Menu de perfil usado no cabeçalho.
+ *
+ * Reúne dados do usuário, navegação mobile/desktop, troca de tema e logout em
+ * um lugar só.
+ */
 export const ProfileMenu = ({
   anchorEl,
   currentPath,

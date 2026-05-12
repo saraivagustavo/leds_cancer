@@ -9,6 +9,12 @@ type ProfileMenuButtonProps = {
   onClick: (event: MouseEvent<HTMLElement>) => void
 }
 
+/**
+ * Botão que abre o menu de perfil.
+ *
+ * Mostra o ícone de menu e o avatar com iniciais para ficar claro que ali tem
+ * ações de conta e navegação.
+ */
 export const ProfileMenuButton = ({
   initials,
   isDoctor,

@@ -24,6 +24,12 @@ type LoginCardProps = {
   username: string
 }
 
+/**
+ * Card visual do login.
+ *
+ * Recebe estado e callbacks da página para ficar focado na interface: campos,
+ * mensagens e botão de entrada.
+ */
 export const LoginCard = ({
   error,
   onBack,

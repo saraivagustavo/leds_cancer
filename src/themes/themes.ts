@@ -1,5 +1,12 @@
 import { createTheme, type PaletteMode } from '@mui/material/styles'
 
+/**
+ * Monta os tokens visuais usados pelo Material UI.
+ *
+ * Aqui ficam cores, tipografia e pequenos padrões dos componentes. A ideia é
+ * mexer neste arquivo quando o visual do produto mudar, em vez de sair caçando
+ * cor espalhada pela aplicação.
+ */
 const getDesignTokens = (mode: PaletteMode) => {
   const isDark = mode === 'dark'
 
@@ -68,4 +75,7 @@ const getDesignTokens = (mode: PaletteMode) => {
   }
 }
 
+/**
+ * Cria o tema final do app para o modo claro ou escuro.
+ */
 export const createAppTheme = (mode: PaletteMode) => createTheme(getDesignTokens(mode))

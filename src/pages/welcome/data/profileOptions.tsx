@@ -1,6 +1,11 @@
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
 import PersonIcon from '@mui/icons-material/Person'
 
+/**
+ * Opções de perfil exibidas na tela inicial.
+ *
+ * Deixamos texto, ícone e gradiente juntos para a tela só renderizar a lista.
+ */
 export const profileOptions = [
   {
     role: 'doctor',

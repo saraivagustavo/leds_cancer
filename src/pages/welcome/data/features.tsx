@@ -2,6 +2,9 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import VerifiedIcon from '@mui/icons-material/Verified'
 
+/**
+ * Benefícios apresentados na tela inicial.
+ */
 export const features = [
   {
     icon: <AssignmentIcon fontSize="large" color="primary" />,

@@ -7,6 +7,12 @@ interface Props {
   allowedRoles?: UserRole[];
 }
 
+/**
+ * Protege rotas que precisam de login e, opcionalmente, de um perfil específico.
+ *
+ * Se a pessoa não estiver logada ou não tiver o papel certo, mandamos de volta
+ * para a entrada do app. Simples e previsível.
+ */
 export const ProtectedRoute = ({ children, allowedRoles }: Props) => {
   const { user } = useAuth();
 
@@ -14,7 +20,9 @@ export const ProtectedRoute = ({ children, allowedRoles }: Props) => {
     return <Navigate to="/" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to="/" replace />;
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
 
   return <>{children}</>;
 };

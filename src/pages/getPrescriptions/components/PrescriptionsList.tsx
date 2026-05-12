@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { Box, Chip, Grid, Paper, Stack, Typography } from '@mui/material'
+import { Link as RouterLink } from 'react-router-dom'
+import { Box, Chip, Fab, Grid, Paper, Stack, Tooltip, Typography } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
 import DescriptionIcon from '@mui/icons-material/Description'
 import InboxIcon from '@mui/icons-material/Inbox'
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
@@ -21,6 +23,12 @@ type PrescriptionsListProps = {
   prescriptions: IPrescription[]
 }
 
+/**
+ * Tela compartilhada de listagem de receitas.
+ *
+ * A mesma estrutura atende médico e paciente; o `mode` muda textos, cores,
+ * métricas e o botão flutuante de criar nova receita.
+ */
 export function PrescriptionsList({
   mode,
   prescriptions,
@@ -29,24 +37,29 @@ export function PrescriptionsList({
   const config = modeConfig[mode]
 
   return (
-    <Box>
+    <Box sx={{ pb: mode === 'doctor' ? { xs: 8, sm: 0 } : 0 }}>
       <Paper
         sx={{
           bgcolor: (theme) => theme.palette.mode === 'dark' ? config.darkBackground : config.background,
           borderRadius: 2,
           mb: 3,
-          p: { xs: 3, md: 4 },
+          p: { xs: 2.5, md: 4 },
         }}
       >
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} justifyContent="space-between">
-          <Box sx={{ maxWidth: 680 }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 2, md: 3 }} justifyContent="space-between">
+          <Box sx={{ maxWidth: 680, minWidth: 0 }}>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ color: config.accent, mb: 1 }}>
               {config.heroIcon}
               <Typography variant="overline" fontWeight={800}>
                 {mode === 'doctor' ? 'Histórico médico' : 'Consulta do paciente'}
               </Typography>
             </Stack>
-            <Typography variant="h3" fontWeight={800} gutterBottom>
+            <Typography
+              variant="h3"
+              fontWeight={800}
+              gutterBottom
+              sx={{ fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' } }}
+            >
               {config.title}
             </Typography>
             <Typography variant="body1" color="text.secondary">
@@ -79,7 +92,7 @@ export function PrescriptionsList({
       </Grid>
 
       {prescriptions.length === 0 ? (
-        <Paper variant="outlined" sx={{ borderRadius: 2, py: 10, textAlign: 'center' }}>
+        <Paper variant="outlined" sx={{ borderRadius: 2, px: 2, py: { xs: 7, md: 10 }, textAlign: 'center' }}>
           <InboxIcon sx={{ fontSize: 64, opacity: 0.28, mb: 1 }} />
           <Typography variant="h6" fontWeight={800}>
             {config.emptyTitle}
@@ -108,6 +121,28 @@ export function PrescriptionsList({
           onClose={() => setSelected(null)}
           prescription={selected}
         />
+      )}
+
+      {mode === 'doctor' && (
+        <Tooltip title="Criar nova receita">
+          <Fab
+            aria-label="criar nova receita"
+            color="primary"
+            component={RouterLink}
+            variant="extended"
+            sx={{
+              bottom: { xs: 16, md: 32 },
+              gap: 1,
+              position: 'fixed',
+              right: { xs: 16, md: 32 },
+              zIndex: (theme) => theme.zIndex.speedDial,
+            }}
+            to="/prescription"
+          >
+            <AddIcon />
+            Nova receita
+          </Fab>
+        </Tooltip>
       )}
     </Box>
   )

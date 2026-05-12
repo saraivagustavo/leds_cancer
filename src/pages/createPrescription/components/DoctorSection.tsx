@@ -13,12 +13,17 @@ type DoctorSectionProps = {
   updateField: PrescriptionFieldUpdater
 }
 
+/**
+ * Primeiro bloco da emissão: dados do médico.
+ *
+ * O nome vem do login e fica bloqueado para preservar a autoria da receita.
+ */
 export const DoctorSection = ({
   formData,
   getFieldError,
   updateField,
 }: DoctorSectionProps) => (
-  <Paper variant="outlined" sx={{ borderRadius: 2, p: 3 }}>
+  <Paper variant="outlined" sx={{ borderRadius: 2, p: { xs: 2, sm: 3 } }}>
     <SectionHeader
       description="Identifique o profissional responsável pela prescrição."
       icon={<LocalHospitalIcon />}

@@ -11,6 +11,13 @@ import { PrescriptionSteps } from './components/PrescriptionSteps'
 import { ReviewSection } from './components/ReviewSection'
 import { createInitialFormData } from './utils'
 
+/**
+ * Tela de emissão de receita.
+ *
+ * Junta as seções do formulário, envia os dados para o hook de salvamento e
+ * limpa tudo depois do sucesso. O scroll para o topo deixa a confirmação bem
+ * visível, principalmente no celular.
+ */
 export const PrescriptionPage = () => {
   const { user } = useAuth()
   const { errors, handleSave, loading, setErrors } = usePrescription()
@@ -29,6 +36,7 @@ export const PrescriptionPage = () => {
     if (success) {
       setNotification(`Receita para ${formData.patientName} gerada com sucesso.`)
       setFormData(createInitialFormData(user?.name))
+      window.scrollTo({ behavior: 'smooth', top: 0 })
     }
   }
 
@@ -42,8 +50,8 @@ export const PrescriptionPage = () => {
 
   return (
     <Box sx={{ maxWidth: 980, mx: 'auto' }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={800} gutterBottom>
+      <Box sx={{ mb: { xs: 3, md: 4 } }}>
+        <Typography variant="h4" fontWeight={800} gutterBottom sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
           Gerar receita virtual
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -53,7 +61,7 @@ export const PrescriptionPage = () => {
 
       <PrescriptionSteps />
 
-      <Stack spacing={3}>
+      <Stack spacing={{ xs: 2, md: 3 }}>
         <DoctorSection
           formData={formData}
           getFieldError={getFieldError}
@@ -75,10 +83,11 @@ export const PrescriptionPage = () => {
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
         <Button
           disabled={loading}
+          fullWidth
           onClick={onSave}
           startIcon={<SaveIcon />}
           variant="contained"
-          sx={{ borderRadius: 2 }}
+          sx={{ borderRadius: 2, maxWidth: { sm: 220 } }}
         >
           {loading ? 'Salvando...' : 'Finalizar receita'}
         </Button>

@@ -8,6 +8,13 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { DoctorPrescriptionsPage, PatientPrescriptionsPage } from '../pages/getPrescriptions';
 import { WelcomePage } from '@/pages/Welcome';
 
+/**
+ * Mapa de rotas da aplicação.
+ *
+ * Mantemos atalhos como `/prescription` e `/doctor/prescriptions` fora do
+ * dashboard também, porque eles deixam a navegação e os links diretos mais
+ * tranquilos para o usuário.
+ */
 export const router = createBrowserRouter(
   [
     {

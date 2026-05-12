@@ -14,6 +14,12 @@ type DesktopNavigationProps = {
   profileColor: 'primary' | 'secondary'
 }
 
+/**
+ * Navegação principal para telas médias e grandes.
+ *
+ * No celular ela some para o menu de perfil assumir, evitando uma barra cheia
+ * de botões espremidos.
+ */
 export const DesktopNavigation = ({
   currentPath,
   items,

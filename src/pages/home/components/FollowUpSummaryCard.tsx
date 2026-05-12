@@ -4,6 +4,12 @@ type FollowUpSummaryCardProps = {
   prescriptionCount: number
 }
 
+/**
+ * Card de acompanhamento do paciente.
+ *
+ * Usa uma indicação visual simples para mostrar se já existe receita disponível
+ * para consulta.
+ */
 export const FollowUpSummaryCard = ({ prescriptionCount }: FollowUpSummaryCardProps) => (
   <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, height: '100%' }}>
     <Typography variant="h6" fontWeight={700} gutterBottom>

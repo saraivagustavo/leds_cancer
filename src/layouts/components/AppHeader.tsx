@@ -23,6 +23,12 @@ type AppHeaderProps = {
   roleLabel: string
 }
 
+/**
+ * Cabeçalho fixo das telas autenticadas.
+ *
+ * Junta marca, navegação desktop, etiqueta de perfil e botão do menu. No mobile,
+ * a navegação fica dentro do menu para caber sem sofrimento.
+ */
 export const AppHeader = ({
   currentPath,
   initials,

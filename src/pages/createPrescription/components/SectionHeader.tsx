@@ -7,12 +7,18 @@ type SectionHeaderProps = {
   title: string
 }
 
+/**
+ * Cabeçalho padrão das seções do formulário de receita.
+ *
+ * Garante que ícone, título e descrição tenham a mesma cara em todos os blocos,
+ * deixando o formulário mais fácil de escanear.
+ */
 export const SectionHeader = ({
   description,
   icon,
   title,
 }: SectionHeaderProps) => (
-  <Stack direction="row" spacing={1.5} alignItems="flex-start" sx={{ mb: 2.5 }}>
+  <Stack direction="row" spacing={{ xs: 1, sm: 1.5 }} alignItems="flex-start" sx={{ mb: 2.5 }}>
     <Box
       sx={{
         alignItems: 'center',
@@ -20,15 +26,16 @@ export const SectionHeader = ({
         borderRadius: 2,
         color: 'primary.main',
         display: 'flex',
-        height: 44,
+        flex: '0 0 auto',
+        height: { xs: 38, sm: 44 },
         justifyContent: 'center',
-        width: 44,
+        width: { xs: 38, sm: 44 },
       }}
     >
       {icon}
     </Box>
-    <Box>
-      <Typography variant="h6" fontWeight={700}>
+    <Box sx={{ minWidth: 0 }}>
+      <Typography variant="h6" fontWeight={700} sx={{ fontSize: { xs: '1.05rem', sm: '1.25rem' } }}>
         {title}
       </Typography>
       <Typography variant="body2" color="text.secondary">
