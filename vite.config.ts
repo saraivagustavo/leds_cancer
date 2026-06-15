@@ -6,7 +6,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/my-health/',
+  base: '/leds_cancer/',
   plugins: [
     react(),
     tsconfigPaths(),

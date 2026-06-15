@@ -1,115 +1,39 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import App from '@/App';
-import { Home } from '@/pages/Home';
-import { PrescriptionPage } from '../pages/createPrescription';
-import { LoginPage } from '../pages/Login';
+import { MainLayout } from '@/layouts/MainLayout';
 import { ProtectedRoute } from './ProtectedRoute';
-import { DoctorPrescriptionsPage, PatientPrescriptionsPage } from '../pages/getPrescriptions';
-import { WelcomePage } from '@/pages/Welcome';
 
-/**
- * Mapa de rotas da aplicação.
- *
- * Mantemos atalhos como `/prescription` e `/doctor/prescriptions` fora do
- * dashboard também, porque eles deixam a navegação e os links diretos mais
- * tranquilos para o usuário.
- */
-export const router = createBrowserRouter(
-  [
-    {
-      path: '/login',
-      element: <Navigate to="/" replace />,
-    },
-    {
-      path: '/login/:role',
-      element: <LoginPage />,
-    },
-    {
-      path: '/',
-      element: <WelcomePage />,
-    },
-    {
-      path: '/dashboard',
-      element: (
-        <ProtectedRoute>
-          <App />
-        </ProtectedRoute>
-      ),
-      children: [
-        {
-          index: true,
-          element: <Home />,
-        },
-        {
-          path: 'prescription',
-          element: (
-            <ProtectedRoute allowedRoles={['doctor']}>
-              <PrescriptionPage />
-            </ProtectedRoute>
-          ),
-        },
-        {
-          path: 'doctor/prescriptions',
-          element: (
-            <ProtectedRoute allowedRoles={['doctor']}>
-              <DoctorPrescriptionsPage />
-            </ProtectedRoute>
-          ),
-        },
-        {
-          path: 'my-prescriptions',
-          element: (
-            <ProtectedRoute allowedRoles={['patient']}>
-              <PatientPrescriptionsPage />
-            </ProtectedRoute>
-          ),
-        },
-      ],
-    },
-    {
-      path: '/prescription',
-      element: (
-        <ProtectedRoute allowedRoles={['doctor']}>
-          <App />
-        </ProtectedRoute>
-      ),
-      children: [
-        {
-          index: true,
-          element: <PrescriptionPage />,
-        },
-      ],
-    },
-    {
-      path: '/doctor/prescriptions',
-      element: (
-        <ProtectedRoute allowedRoles={['doctor']}>
-          <App />
-        </ProtectedRoute>
-      ),
-      children: [
-        {
-          index: true,
-          element: <DoctorPrescriptionsPage />,
-        },
-      ],
-    },
-    {
-      path: '/my-prescriptions',
-      element: (
-        <ProtectedRoute allowedRoles={['patient']}>
-          <App />
-        </ProtectedRoute>
-      ),
-      children: [
-        {
-          index: true,
-          element: <PatientPrescriptionsPage />,
-        },
-      ],
-    },
-  ],
+// Pages — thin wrappers sobre os features
+import { AuthPage }        from '@/pages/AuthPage';
+import { DashboardPage }   from '@/pages/DashboardPage';
+import { PatientsPage }    from '@/pages/PatientsPage';
+import { NewAnalysisPage } from '@/pages/NewAnalysisPage';
+import { HistoryPage }     from '@/pages/HistoryPage';
+import { SettingsPage }    from '@/pages/SettingsPage';
+
+export const router = createBrowserRouter([
   {
-    basename: '/my-health',
-  }
-);
+    path: '/auth',
+    element: <AuthPage />,
+  },
+  {
+    path: '/',
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <MainLayout />,
+        children: [
+          { index: true,       element: <Navigate to="/dashboard" replace /> },
+          { path: 'dashboard', element: <DashboardPage /> },
+          { path: 'patients',  element: <PatientsPage /> },
+          { path: 'new-exam',  element: <NewAnalysisPage /> },
+          { path: 'history',   element: <HistoryPage /> },
+          { path: 'settings',  element: <SettingsPage /> },
+        ],
+      },
+    ],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/auth" replace />,
+  },
+], { basename: '/leds_cancer' });

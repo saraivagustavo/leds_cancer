@@ -1,77 +1,55 @@
-import { useMemo, useState } from 'react'
-import { Container } from '@mui/material'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
-import { useColorMode } from '@/contexts/ColorModeContext'
-import { AppHeader } from './components/AppHeader'
-import { ProfileMenu } from './components/ProfileMenu'
-import {
-  getInitials,
-  getNavigationItems,
-  getRoleIcon,
-} from './utils/navigation'
+import { useState } from 'react';
+import { Box, Toolbar } from '@mui/material';
+import { Outlet } from 'react-router-dom';
+import { AppHeader } from './AppHeader';
+import { SideNav } from './SideNav';
 
-/**
- * Layout das telas autenticadas.
- *
- * Concentra cabeçalho, menu de perfil, logout e o container responsivo onde as
- * páginas entram pelo `Outlet`.
- */
-export const MainLayout = () => {
-  const { logout, user } = useAuth()
-  const { mode, toggleMode } = useColorMode()
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+const DRAWER_WIDTH = 240;
+const DRAWER_COLLAPSED_WIDTH = 64;
 
-  const isDoctor = user?.role === 'doctor'
-  const navigationItems = useMemo(() => getNavigationItems(isDoctor), [isDoctor])
-  const roleLabel = isDoctor ? 'Médico' : 'Paciente'
-  const roleIcon = getRoleIcon(isDoctor)
-  const profileColor = isDoctor ? 'primary' : 'secondary'
-  const initials = getInitials(user)
+export function MainLayout() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopOpen, setDesktopOpen] = useState(true);
 
-  const closeMenu = () => setAnchorEl(null)
-
-  const handleLogout = () => {
-    closeMenu()
-    logout()
-    navigate('/', { replace: true })
-  }
+  const effectiveWidth = desktopOpen ? DRAWER_WIDTH : DRAWER_COLLAPSED_WIDTH;
 
   return (
-    <>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
       <AppHeader
-        currentPath={location.pathname}
-        initials={initials}
-        isDoctor={isDoctor}
-        isMenuOpen={Boolean(anchorEl)}
-        items={navigationItems}
-        onBrandClick={() => navigate('/dashboard')}
-        onMenuClick={(event) => setAnchorEl(event.currentTarget)}
-        profileColor={profileColor}
-        roleIcon={roleIcon}
-        roleLabel={roleLabel}
+        drawerWidth={effectiveWidth}
+        onMenuToggle={() => {
+          // Mobile: toggle temporário; Desktop: collapse/expand
+          if (window.innerWidth < 900) {
+            setMobileOpen((v) => !v);
+          } else {
+            setDesktopOpen((v) => !v);
+          }
+        }}
       />
 
-      <ProfileMenu
-        anchorEl={anchorEl}
-        currentPath={location.pathname}
-        initials={initials}
-        isDoctor={isDoctor}
-        items={navigationItems}
-        mode={mode}
-        onClose={closeMenu}
-        onLogout={handleLogout}
-        onToggleMode={toggleMode}
-        roleIcon={roleIcon}
-        roleLabel={roleLabel}
-        user={user}
+      <SideNav
+        drawerWidth={DRAWER_WIDTH}
+        collapsedWidth={DRAWER_COLLAPSED_WIDTH}
+        desktopOpen={desktopOpen}
+        mobileOpen={mobileOpen}
+        onClose={() => setMobileOpen(false)}
       />
 
-      <Container maxWidth="lg" sx={{ mt: { xs: 2.5, md: 4 }, mb: { xs: 4, md: 6 }, px: { xs: 2, sm: 3 } }}>
-        <Outlet />
-      </Container>
-    </>
-  )
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          minHeight: '100vh',
+          width: { md: `calc(100% - ${effectiveWidth}px)` },
+          ml: { md: `${effectiveWidth}px` },
+          transition: 'margin 0.2s ease, width 0.2s ease',
+        }}
+      >
+        <Toolbar sx={{ minHeight: 56 }} />
+        <Box sx={{ p: { xs: 2, sm: 3 } }}>
+          <Outlet />
+        </Box>
+      </Box>
+    </Box>
+  );
 }

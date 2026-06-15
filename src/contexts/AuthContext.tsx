@@ -1,55 +1,77 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import type { User, LoginFormData, RegisterFormData } from '@/types/auth';
 
-/**
- * Perfis que direcionam rotas, menus e linguagem da interface.
- */
-export type UserRole = 'doctor' | 'patient';
+// ─── Usuário mockado para testes ──────────────────────────────────────────────
+const MOCK_USER: User = {
+  id: '1',
+  fullName: 'Dr. Carlos Mendes',
+  email: 'dr.carlos@mammoai.com',
+  crm: 'CRM/SP 123456',
+  role: 'medico',
+};
 
-/**
- * Usuário autenticado no protótipo.
- *
- * Mantemos enxuto porque a demo só precisa do nome e do papel da pessoa para
- * montar navegação e filtrar receitas.
- */
-export interface AuthUser {
-  name: string;
-  role: UserRole;
-}
+const MOCK_CREDENTIALS = {
+  identifier: 'dr.carlos@mammoai.com', // ou use o CRM: CRM/SP 123456
+  password: 'senha123',
+};
+
+// ─── Tipos ────────────────────────────────────────────────────────────────────
 
 interface AuthContextType {
-  user: AuthUser | null;
-  login: (user: AuthUser) => void;
+  user: User | null;
+  isAuthenticated: boolean;
+  login: (data: LoginFormData) => Promise<void>;
+  register: (data: RegisterFormData) => Promise<void>;
   logout: () => void;
+  updateUser: (data: Partial<Pick<User, 'fullName' | 'email' | 'crm'>>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-/**
- * Provider simples de autenticação em memória.
- *
- * Ele segura o usuário logado enquanto o app está aberto. A ideia aqui é deixar
- * o resto da interface conversar com `useAuth`, sem espalhar estado de login.
- */
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-
-  const login = (user: AuthUser) => setUser(user);
-  const logout = () => setUser(null);
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-/**
- * Acesso seguro ao contexto de autenticação.
- *
- * Se alguém usar fora do `AuthProvider`, o erro aparece cedo e bem explicado.
- */
-export const useAuth = () => {
+export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
-};
+}
+
+// ─── Provider ─────────────────────────────────────────────────────────────────
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+
+  const login = useCallback(async (data: LoginFormData) => {
+    // Simula latência de rede
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    const identifierMatch =
+      data.identifier === MOCK_CREDENTIALS.identifier ||
+      data.identifier === MOCK_USER.crm;
+    const passwordMatch = data.password === MOCK_CREDENTIALS.password;
+
+    if (!identifierMatch || !passwordMatch) {
+      throw new Error('Credenciais inválidas.');
+    }
+
+    setUser(MOCK_USER);
+    // TODO: substituir por await api.post('/auth/login', data) e salvar token
+  }, []);
+
+  const register = useCallback(async (_data: RegisterFormData) => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    // TODO: await api.post('/auth/register', _data)
+  }, []);
+
+  const logout = useCallback(() => {
+    setUser(null);
+  }, []);
+
+  const updateUser = useCallback((data: Partial<Pick<User, 'fullName' | 'email' | 'crm'>>) => {
+    setUser((prev) => (prev ? { ...prev, ...data } : prev));
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout, updateUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
