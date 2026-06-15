@@ -22,6 +22,6 @@ export interface RegisterFormData {
   confirmPassword: string;
 }
 
-export interface FormErrors<T> {
+export interface FormErrors {
   [K: string]: string | undefined;
 }
