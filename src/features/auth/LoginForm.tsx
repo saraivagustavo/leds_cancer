@@ -119,12 +119,10 @@ export function LoginForm() {
         {isSubmitting ? 'Entrando...' : 'Entrar'}
       </Button>
 
-      {/* Credencial de teste visível em desenvolvimento */}
-      {import.meta.env.DEV && (
-        <Typography variant="caption" color="text.disabled" textAlign="center">
-          Teste: dr.carlos@mammoai.com / senha123
-        </Typography>
-      )}
+      {/* Credencial de teste — sempre visível para avaliação */}
+      <Typography variant="caption" color="text.disabled" textAlign="center">
+        Acesso de teste: dr.carlos@mammoai.com / senha123
+      </Typography>
     </Box>
   );
 }
