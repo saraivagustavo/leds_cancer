@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Grid, Typography, Stack } from '@mui/material';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import HourglassEmptyOutlinedIcon from '@mui/icons-material/HourglassEmptyOutlined';
@@ -9,7 +10,12 @@ import { useExams } from '@/contexts/ExamContext';
 import type { SvgIconComponent } from '@mui/icons-material';
 
 export function DashboardContent() {
-  const { stats } = useExams();
+  const { stats, refreshExams } = useExams();
+
+  // Recarrega sempre que o dashboard é exibido
+  useEffect(() => {
+    refreshExams();
+  }, [refreshExams]);
 
   const STAT_CARDS: Array<{
     id: string; title: string; value: number; subtitle: string;

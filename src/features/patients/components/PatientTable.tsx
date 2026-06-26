@@ -13,14 +13,9 @@ import {
   Typography,
 } from '@mui/material';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import type { Patient, PatientStatus } from '@/types/patient';
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const STATUS_CONFIG: Record<PatientStatus, { label: string; color: 'success' | 'default' }> = {
-  ativo:   { label: 'Ativo',   color: 'success' },
-  inativo: { label: 'Inativo', color: 'default' },
-};
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import type { Patient } from '@/types/patient';
+import { PATIENT_STATUS_CONFIG } from '@/utils/statusConfig';
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
@@ -31,6 +26,7 @@ interface PatientTableProps {
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (rows: number) => void;
   onViewPatient: (patient: Patient) => void;
+  onEditPatient: (patient: Patient) => void;
 }
 
 export function PatientTable({
@@ -40,6 +36,7 @@ export function PatientTable({
   onPageChange,
   onRowsPerPageChange,
   onViewPatient,
+  onEditPatient,
 }: PatientTableProps) {
   const paginated = patients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -82,7 +79,7 @@ export function PatientTable({
               </TableRow>
             ) : (
               paginated.map((patient) => {
-                const status = STATUS_CONFIG[patient.status];
+                const status = PATIENT_STATUS_CONFIG[patient.status];
                 return (
                   <TableRow
                     key={patient.id}
@@ -148,6 +145,15 @@ export function PatientTable({
                           onClick={() => onViewPatient(patient)}
                         >
                           <VisibilityOutlinedIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Editar paciente">
+                        <IconButton
+                          size="small"
+                          aria-label={`Editar ${patient.name}`}
+                          onClick={() => onEditPatient(patient)}
+                        >
+                          <EditOutlinedIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                     </TableCell>

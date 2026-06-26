@@ -1,8 +1,14 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from 'react';
 import type { RecentExam } from '@/types/dashboard';
 import type { PatientExam } from '@/types/patient';
 import type { NewAnalysisFormData } from '@/types/analysis';
-import { MOCK_PATIENTS } from '@/features/patients/data/mockPatients';
+import { examService } from '@/services/examService';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -16,37 +22,19 @@ export interface ExamStats {
 interface ExamContextType {
   recentExams: RecentExam[];
   stats: ExamStats;
-  // patientId → exams list (para o drawer de detalhes)
+  isLoading: boolean;
   patientExams: Record<string, PatientExam[]>;
-  submitExam: (form: NewAnalysisFormData, patientName: string) => void;
+  submitExam: (form: NewAnalysisFormData, patientName: string) => Promise<void>;
+  refreshExams: () => Promise<void>;
 }
 
-// ─── Dados iniciais (os mocks existentes) ─────────────────────────────────────
+// ─── Valores iniciais ─────────────────────────────────────────────────────────
 
-const INITIAL_EXAMS: RecentExam[] = [
-  { id: 'EX-001', patientName: 'Maria Silva Santos',  datetime: '15/06/2026 08:14', examType: 'Mamografia Digital', status: 'concluido'  },
-  { id: 'EX-002', patientName: 'Ana Paula Ferreira',  datetime: '15/06/2026 09:02', examType: 'Mamografia 3D',      status: 'em_analise' },
-  { id: 'EX-003', patientName: 'Carla Mendes Rocha',  datetime: '15/06/2026 09:45', examType: 'Mamografia Digital', status: 'pendente'   },
-  { id: 'EX-004', patientName: 'Fernanda Costa Lima', datetime: '15/06/2026 10:30', examType: 'Mamografia 3D',      status: 'concluido'  },
-  { id: 'EX-005', patientName: 'Juliana Alves Nunes', datetime: '15/06/2026 11:00', examType: 'Mamografia Digital', status: 'pendente'   },
-  { id: 'EX-006', patientName: 'Patricia Gomes Dias', datetime: '15/06/2026 11:30', examType: 'Mamografia 3D',      status: 'cancelado'  },
-];
-
-const INITIAL_STATS: ExamStats = {
-  todayPatients: 14,
-  pendingExams: 5,
-  monthlyDiagnostics: 187,
-  concludedToday: 9,
-};
-
-// Inicializa o mapa de exames por paciente a partir dos dados mock
-const buildInitialPatientExams = (): Record<string, PatientExam[]> =>
-  Object.fromEntries(MOCK_PATIENTS.map((p) => [p.id, [...p.exams]]));
-
-const TECHNIQUE_LABEL: Record<string, string> = {
-  digital:         'Mamografia Digital',
-  '3d_tomossintese': 'Mamografia 3D',
-  contraste:       'Mamografia com Contraste',
+const EMPTY_STATS: ExamStats = {
+  todayPatients: 0,
+  pendingExams: 0,
+  monthlyDiagnostics: 0,
+  concludedToday: 0,
 };
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -62,52 +50,85 @@ export function useExams() {
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function ExamProvider({ children }: { children: React.ReactNode }) {
-  const [recentExams, setRecentExams] = useState<RecentExam[]>(INITIAL_EXAMS);
-  const [stats, setStats] = useState<ExamStats>(INITIAL_STATS);
-  const [patientExams, setPatientExams] = useState<Record<string, PatientExam[]>>(
-    buildInitialPatientExams
-  );
+  const [recentExams, setRecentExams] = useState<RecentExam[]>([]);
+  const [stats, setStats] = useState<ExamStats>(EMPTY_STATS);
+  const [patientExams, setPatientExams] = useState<Record<string, PatientExam[]>>({});
+  const [isLoading, setIsLoading] = useState(true);
 
-  const submitExam = useCallback((form: NewAnalysisFormData, patientName: string) => {
-    const now = new Date();
-    const datetime = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    const examId = `EX-${String(Date.now()).slice(-4)}`;
-    const examType = TECHNIQUE_LABEL[form.technique] ?? 'Mamografia Digital';
+  // ── Dashboard: exames recentes + stats ────────────────────────────────────
 
-    // 1. Adiciona na lista de exames recentes (mais recente primeiro)
-    const newRecentExam: RecentExam = {
-      id: examId,
-      patientName,
-      datetime,
-      examType,
-      status: 'pendente',
-    };
-    setRecentExams((prev) => [newRecentExam, ...prev]);
-
-    // 2. Adiciona no histórico do paciente
-    const newPatientExam: PatientExam = {
-      id: examId,
-      date: now.toLocaleDateString('pt-BR'),
-      type: examType,
-      status: 'pendente',
-      radiologist: 'Aguardando atribuição',
-    };
-    setPatientExams((prev) => ({
-      ...prev,
-      [form.patientId]: [newPatientExam, ...(prev[form.patientId] ?? [])],
-    }));
-
-    // 3. Atualiza os contadores do dashboard
-    setStats((prev) => ({
-      ...prev,
-      todayPatients: prev.todayPatients + 1,
-      pendingExams:  prev.pendingExams + 1,
-      monthlyDiagnostics: prev.monthlyDiagnostics + 1,
-    }));
+  const refreshExams = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [recent, dashStats] = await Promise.all([
+        examService.recent(),
+        examService.stats(),
+      ]);
+      setRecentExams(recent);
+      setStats(dashStats);
+    } catch {
+      // silencia erro de rede — mantém estado anterior
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token) refreshExams();
+    else setIsLoading(false);
+  }, [refreshExams]);
+
+  // ── Submissão de novo exame ────────────────────────────────────────────────
+
+  const submitExam = useCallback(
+    async (form: NewAnalysisFormData, _patientName: string) => {
+      const formData = new FormData();
+      formData.append('patient', form.patientId);
+      formData.append('exam_date', form.examDate);
+      formData.append('technique', form.technique);
+      formData.append('breast_side', form.breastSide);
+      formData.append('clinical_history', form.clinicalHistory);
+      formData.append('requesting_physician', form.requestingPhysician);
+      if (form.imageFile) {
+        formData.append('image_file', form.imageFile);
+      }
+      await examService.create(formData);
+      await refreshExams();
+    },
+    [refreshExams],
+  );
+
+  // ── Carrega exames de um paciente (lazy, para o drawer de detalhes) ────────
+
+  const loadPatientExams = useCallback(
+    async (patientId: string) => {
+      if (patientExams[patientId]) return;
+      try {
+        const data = await examService.list({ patient: patientId });
+        setPatientExams((prev) => ({
+          ...prev,
+          [patientId]: data.map((e) => ({
+            id: e.id,
+            date: e.datetime.split(' ')[0],
+            type: e.examType,
+            status: e.status,
+            radiologist: e.radiologist,
+          })),
+        }));
+      } catch {
+        // silencia
+      }
+    },
+    [patientExams],
+  );
+
+  void loadPatientExams; // disponível para uso futuro via contexto
+
   return (
-    <ExamContext.Provider value={{ recentExams, stats, patientExams, submitExam }}>
+    <ExamContext.Provider
+      value={{ recentExams, stats, isLoading, patientExams, submitExam, refreshExams }}
+    >
       {children}
     </ExamContext.Provider>
   );

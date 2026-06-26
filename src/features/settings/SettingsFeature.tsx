@@ -11,20 +11,14 @@ import {
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
-import { ProfileTab }       from './components/ProfileTab';
-import { AppearanceTab }    from './components/AppearanceTab';
-import { NotificationsTab } from './components/NotificationsTab';
-import { SecurityTab }      from './components/SecurityTab';
+import { ProfileTab }    from './components/ProfileTab';
+import { AppearanceTab } from './components/AppearanceTab';
 
-type SettingsTab = 'profile' | 'appearance' | 'notifications' | 'security';
+type SettingsTab = 'profile' | 'appearance';
 
 const TABS: { value: SettingsTab; label: string; Icon: React.ElementType }[] = [
-  { value: 'profile',       label: 'Perfil',          Icon: PersonOutlineIcon              },
-  { value: 'appearance',    label: 'Aparência',        Icon: PaletteOutlinedIcon            },
-  { value: 'notifications', label: 'Notificações',     Icon: NotificationsNoneOutlinedIcon  },
-  { value: 'security',      label: 'Segurança',        Icon: ShieldOutlinedIcon             },
+  { value: 'profile',    label: 'Perfil',    Icon: PersonOutlineIcon   },
+  { value: 'appearance', label: 'Aparência', Icon: PaletteOutlinedIcon },
 ];
 
 export function SettingsFeature() {
@@ -38,7 +32,7 @@ export function SettingsFeature() {
         <Box>
           <Typography variant="h5" fontWeight={700}>Configurações</Typography>
           <Typography variant="body2" color="text.secondary">
-            Gerencie seu perfil, aparência e preferências do sistema
+            Gerencie seu perfil e aparência do sistema
           </Typography>
         </Box>
       </Stack>
@@ -48,8 +42,6 @@ export function SettingsFeature() {
         <Tabs
           value={activeTab}
           onChange={(_, v: SettingsTab) => setActiveTab(v)}
-          variant="scrollable"
-          scrollButtons="auto"
           sx={{ borderBottom: 1, borderColor: 'divider', px: 2 }}
         >
           {TABS.map(({ value, label, Icon }) => (
@@ -65,10 +57,8 @@ export function SettingsFeature() {
         </Tabs>
 
         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-          {activeTab === 'profile'       && <ProfileTab />}
-          {activeTab === 'appearance'    && <AppearanceTab />}
-          {activeTab === 'notifications' && <NotificationsTab />}
-          {activeTab === 'security'      && <SecurityTab />}
+          {activeTab === 'profile'    && <ProfileTab />}
+          {activeTab === 'appearance' && <AppearanceTab />}
         </CardContent>
       </Card>
     </Stack>

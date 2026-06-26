@@ -13,6 +13,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { useState, useEffect } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import CakeOutlinedIcon from '@mui/icons-material/CakeOutlined';
@@ -20,38 +21,10 @@ import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import type { Patient } from '@/types/patient';
-import type { ExamStatus } from '@/types/dashboard';
 import { useExams } from '@/contexts/ExamContext';
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const EXAM_STATUS_CONFIG: Record<
-  ExamStatus,
-  { label: string; color: 'default' | 'primary' | 'warning' | 'success' | 'error' }
-> = {
-  pendente:   { label: 'Pendente',   color: 'warning' },
-  em_analise: { label: 'Em Análise', color: 'primary' },
-  concluido:  { label: 'Concluído',  color: 'success' },
-  cancelado:  { label: 'Cancelado',  color: 'error'   },
-};
-
-// ─── Sub-componente de campo de informação ────────────────────────────────────
-
-function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <Stack direction="row" spacing={1.5} alignItems="flex-start">
-      <Box sx={{ color: 'text.secondary', mt: 0.2, flexShrink: 0 }}>{icon}</Box>
-      <Box>
-        <Typography variant="caption" color="text.secondary" display="block">
-          {label}
-        </Typography>
-        <Typography variant="body2" fontWeight={500}>
-          {value}
-        </Typography>
-      </Box>
-    </Stack>
-  );
-}
+import { examService } from '@/services/examService';
+import { InfoRow } from '@/components/InfoRow';
+import { EXAM_STATUS_CONFIG, PATIENT_STATUS_CONFIG } from '@/utils/statusConfig';
 
 // ─── Drawer principal ─────────────────────────────────────────────────────────
 
@@ -65,7 +38,28 @@ const DRAWER_WIDTH = 420;
 
 export function PatientDetailDrawer({ patient, open, onClose }: PatientDetailDrawerProps) {
   const { patientExams } = useExams();
-  const exams = patient ? (patientExams[patient.id] ?? patient.exams) : [];
+
+  // Busca os exames do paciente via API quando o drawer abre
+  useEffect(() => {
+    if (!patient || !open) return;
+    examService.list({ patient: patient.id }).then((data) => {
+      // armazena localmente no componente para exibição
+      setLocalExams(data.map((e) => ({
+        id: e.id,
+        date: e.datetime.split(' ')[0],
+        type: e.examType,
+        status: e.status as import('@/types/dashboard').ExamStatus,
+        radiologist: e.radiologist,
+      })));
+    }).catch(() => {/* silencia */});
+  }, [patient, open]);
+
+  const [localExams, setLocalExams] = useState<import('@/types/patient').PatientExam[]>([]);
+
+  // Prefere dados do contexto se disponíveis, senão usa o que buscou localmente
+  const exams = patient
+    ? (patientExams[patient.id] ?? localExams ?? patient.exams ?? [])
+    : [];
   const totalExams = exams.length;
   return (
     <Drawer
@@ -102,8 +96,8 @@ export function PatientDetailDrawer({ patient, open, onClose }: PatientDetailDra
           <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 3, py: 2.5 }}>
             {/* Status badge */}
             <Chip
-              label={patient.status === 'ativo' ? 'Ativo' : 'Inativo'}
-              color={patient.status === 'ativo' ? 'success' : 'default'}
+              label={PATIENT_STATUS_CONFIG[patient.status].label}
+              color={PATIENT_STATUS_CONFIG[patient.status].color}
               size="small"
               sx={{ mb: 2.5, fontWeight: 600 }}
             />

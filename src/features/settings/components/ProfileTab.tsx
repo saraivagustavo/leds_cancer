@@ -14,20 +14,21 @@ import {
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useAuth } from '@/contexts/AuthContext';
-
-const ROLE_LABEL = { medico: 'Médico(a)', tecnico: 'Técnico(a)', administrador: 'Administrador(a)' };
+import { api } from '@/services/api';
+import { validatePassword, validateConfirmPassword } from '@/utils/validators';
+import { ROLE_LABEL } from '@/utils/statusConfig';
 
 // ─── Alterar senha ────────────────────────────────────────────────────────────
 
 interface PasswordForm { current: string; next: string; confirm: string; }
 type PasswordErrors = Partial<Record<keyof PasswordForm, string>>;
 
-function validatePassword(f: PasswordForm): PasswordErrors {
+function validatePasswordForm(f: PasswordForm): PasswordErrors {
   const e: PasswordErrors = {};
   if (!f.current) e.current = 'Informe a senha atual.';
-  if (!f.next || f.next.length < 8) e.next = 'A nova senha deve ter no mínimo 8 caracteres.';
-  if (f.next !== f.confirm) e.confirm = 'As senhas não coincidem.';
-  return e;
+  e.next = validatePassword(f.next);
+  e.confirm = validateConfirmPassword(f.next, f.confirm);
+  return Object.fromEntries(Object.entries(e).filter(([, v]) => v !== undefined)) as PasswordErrors;
 }
 
 // ─── Componente ───────────────────────────────────────────────────────────────
@@ -55,23 +56,44 @@ export function ProfileTab() {
   const handleProfileSave = async () => {
     if (!profile.fullName.trim() || !profile.email.trim()) return;
     setProfileSaving(true);
-    await new Promise((r) => setTimeout(r, 700)); // TODO: api.put('/users/me')
-    updateUser(profile);
-    setProfileSaving(false);
-    setProfileSuccess(true);
-    setTimeout(() => setProfileSuccess(false), 3000);
+    try {
+      await api.patch('/auth/me/update/', {
+        full_name: profile.fullName,
+        email: profile.email,
+        crm: profile.crm,
+      });
+      updateUser(profile);
+      setProfileSuccess(true);
+      setTimeout(() => setProfileSuccess(false), 3000);
+    } catch {
+      // erro tratado pelo interceptor global
+    } finally {
+      setProfileSaving(false);
+    }
   };
 
   const handlePasswordSave = async () => {
-    const errors = validatePassword(pwd);
+    const errors = validatePasswordForm(pwd);
     if (Object.keys(errors).length) { setPwdErrors(errors); return; }
     setPwdSaving(true);
-    await new Promise((r) => setTimeout(r, 700)); // TODO: api.put('/users/me/password')
-    setPwdSaving(false);
-    setPwdSuccess(true);
-    setPwd({ current: '', next: '', confirm: '' });
-    setPwdErrors({});
-    setTimeout(() => setPwdSuccess(false), 3000);
+    try {
+      await api.post('/auth/me/password/', {
+        current_password: pwd.current,
+        new_password: pwd.next,
+        confirm_password: pwd.confirm,
+      });
+      setPwdSuccess(true);
+      setPwd({ current: '', next: '', confirm: '' });
+      setPwdErrors({});
+      setTimeout(() => setPwdSuccess(false), 3000);
+    } catch (err: any) {
+      const detail = err?.response?.data?.current_password?.[0]
+        ?? err?.response?.data?.detail
+        ?? 'Erro ao alterar senha.';
+      setPwdErrors({ current: detail });
+    } finally {
+      setPwdSaving(false);
+    }
   };
 
   return (

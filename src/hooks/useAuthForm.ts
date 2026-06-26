@@ -1,29 +1,13 @@
 import { useState, useCallback, type ChangeEvent } from 'react';
 import type { LoginFormData, RegisterFormData } from '@/types/auth';
+import {
+  validateEmail,
+  validateRequired,
+  validatePassword,
+  validateConfirmPassword,
+} from '@/utils/validators';
 
-// ─── Validadores individuais ──────────────────────────────────────────────────
-
-export function validateEmail(value: string): string | undefined {
-  if (!value.trim()) return 'E-mail é obrigatório.';
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'E-mail inválido.';
-}
-
-export function validateRequired(value: string, label: string): string | undefined {
-  if (!value.trim()) return `${label} é obrigatório.`;
-}
-
-export function validatePassword(value: string): string | undefined {
-  if (!value) return 'Senha é obrigatória.';
-  if (value.length < 8) return 'A senha deve ter no mínimo 8 caracteres.';
-}
-
-export function validateConfirmPassword(
-  password: string,
-  confirm: string
-): string | undefined {
-  if (!confirm) return 'Confirmação de senha é obrigatória.';
-  if (password !== confirm) return 'As senhas não coincidem.';
-}
+export { validateEmail, validateRequired, validatePassword, validateConfirmPassword };
 
 // ─── Hook de formulário de Login ──────────────────────────────────────────────
 

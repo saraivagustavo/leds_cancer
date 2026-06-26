@@ -18,16 +18,16 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { PatientSelectStep } from './components/PatientSelectStep';
 import { ImageUploadStep } from './components/ImageUploadStep';
 import { ExamDataStep } from './components/ExamDataStep';
-import { MOCK_PATIENTS } from '@/features/patients/data/mockPatients';
+import { usePatients } from '@/hooks/usePatients';
 import { useExams } from '@/contexts/ExamContext';
 import type { NewAnalysisFormData, NewAnalysisStep } from '@/types/analysis';
 import type { BreastSide, ExamTechnique } from '@/types/analysis';
 
-// ─── Steps config ──────────────────────────────────────────────────────────────
+// ─── Steps config ─────────────────────────────────────────────────────────────
 
 const STEPS = ['Selecionar Paciente', 'Enviar Imagem', 'Dados do Exame'];
 
-// ─── Validação por step ────────────────────────────────────────────────────────
+// ─── Validação por step ───────────────────────────────────────────────────────
 
 type Step3Fields = Pick<NewAnalysisFormData, 'examDate' | 'technique' | 'breastSide' | 'requestingPhysician'>;
 type Step3Errors = Partial<Record<keyof Step3Fields, string>>;
@@ -66,7 +66,10 @@ export function NewAnalysisFeature() {
   const [step3Errors, setStep3Errors] = useState<Step3Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const { submitExam } = useExams();
+  const { patients } = usePatients();
 
   const updateForm = <K extends keyof NewAnalysisFormData>(field: K, value: NewAnalysisFormData[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -76,11 +79,8 @@ export function NewAnalysisFeature() {
   const handleNext = () => {
     const error = validateStep(activeStep, form);
     if (error) {
-      if (typeof error === 'string') {
-        setStepError(error);
-      } else {
-        setStep3Errors(error);
-      }
+      if (typeof error === 'string') setStepError(error);
+      else setStep3Errors(error);
       return;
     }
     setStepError(null);
@@ -99,16 +99,18 @@ export function NewAnalysisFeature() {
       if (typeof error !== 'string') setStep3Errors(error);
       return;
     }
+
     setSubmitting(true);
-    // TODO: await api.post('/exams', form)
-    await new Promise((r) => setTimeout(r, 1500));
-
-    // Atualiza o estado global com o novo exame
-    const patient = MOCK_PATIENTS.find((p) => p.id === form.patientId);
-    if (patient) submitExam(form, patient.name);
-
-    setSubmitting(false);
-    setSubmitted(true);
+    setSubmitError(null);
+    try {
+      const patient = patients.find((p) => String(p.id) === form.patientId);
+      await submitExam(form, patient?.name ?? '');
+      setSubmitted(true);
+    } catch {
+      setSubmitError('Erro ao enviar o exame. Verifique os dados e tente novamente.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -117,11 +119,12 @@ export function NewAnalysisFeature() {
     setSubmitted(false);
     setStepError(null);
     setStep3Errors({});
+    setSubmitError(null);
   };
 
-  const selectedPatient = MOCK_PATIENTS.find((p) => p.id === form.patientId);
+  const selectedPatient = patients.find((p) => String(p.id) === form.patientId);
 
-  // ─── Tela de sucesso ────────────────────────────────────────────────────────
+  // ─── Tela de sucesso ──────────────────────────────────────────────────────
 
   if (submitted) {
     return (
@@ -169,10 +172,15 @@ export function NewAnalysisFeature() {
             ))}
           </Stepper>
 
-          {/* Erro global do step */}
+          {/* Erros */}
           {stepError && (
             <Alert severity="warning" sx={{ mb: 2.5, borderRadius: 2 }} onClose={() => setStepError(null)}>
               {stepError}
+            </Alert>
+          )}
+          {submitError && (
+            <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }} onClose={() => setSubmitError(null)}>
+              {submitError}
             </Alert>
           )}
 
@@ -184,7 +192,6 @@ export function NewAnalysisFeature() {
                 onSelect={(id) => updateForm('patientId', id)}
               />
             )}
-
             {activeStep === 1 && (
               <ImageUploadStep
                 imageFile={form.imageFile}
@@ -195,7 +202,6 @@ export function NewAnalysisFeature() {
                 }}
               />
             )}
-
             {activeStep === 2 && (
               <ExamDataStep
                 values={{
@@ -246,11 +252,7 @@ export function NewAnalysisFeature() {
 
           {/* Navegação */}
           <Stack direction="row" justifyContent="space-between">
-            <Button
-              variant="outlined"
-              onClick={handleBack}
-              disabled={activeStep === 0}
-            >
+            <Button variant="outlined" onClick={handleBack} disabled={activeStep === 0}>
               Voltar
             </Button>
 

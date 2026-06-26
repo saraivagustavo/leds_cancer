@@ -1,11 +1,19 @@
 import { useMemo, useState } from 'react';
-import { Box, Card, Divider, Stack, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Card,
+  CircularProgress,
+  Divider,
+  Stack,
+  Typography,
+} from '@mui/material';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import { HistoryFilters } from './components/HistoryFilters';
 import { HistoryTable } from './components/HistoryTable';
 import { ExamDetailDrawer } from './components/ExamDetailDrawer';
-import { useExams } from '@/contexts/ExamContext';
-import { MOCK_PATIENTS } from '@/features/patients/data/mockPatients';
+import { useHistory } from '@/hooks/useHistory';
+import { parseBrDate } from '@/utils/formatters';
 import type { HistoryExam } from '@/types/history';
 import type { HistoryFilterValues } from './components/HistoryFilters';
 import type { SortField, SortDirection } from './components/HistoryTable';
@@ -13,36 +21,7 @@ import type { SortField, SortDirection } from './components/HistoryTable';
 // ─── Tipo re-exportado para compatibilidade ───────────────────────────────────
 export type { HistoryExam } from '@/types/history';
 
-// ─── Constrói a lista completa a partir do contexto ───────────────────────────
-
-function buildAllExams(patientExams: Record<string, import('@/types/patient').PatientExam[]>): HistoryExam[] {
-  const patientMap = Object.fromEntries(MOCK_PATIENTS.map((p) => [p.id, p.name]));
-
-  return Object.entries(patientExams).flatMap(([patientId, exams]) =>
-    exams.map((exam) => ({
-      id: exam.id,
-      patientId,
-      patientName: patientMap[patientId] ?? patientId,
-      datetime: exam.date,
-      examType: exam.type,
-      status: exam.status,
-      radiologist: exam.radiologist,
-    }))
-  );
-}
-
-// ─── Helpers de filtro ────────────────────────────────────────────────────────
-
-function parseBrDate(str: string): Date {
-  // Suporta "dd/mm/yyyy" e "dd/mm/yyyy HH:mm"
-  const [datePart, timePart] = str.split(' ');
-  const [d, m, y] = datePart.split('/').map(Number);
-  if (timePart) {
-    const [h, min] = timePart.split(':').map(Number);
-    return new Date(y, m - 1, d, h, min);
-  }
-  return new Date(y, m - 1, d);
-}
+// ─── Helpers (parseBrDate vem de @/utils/formatters) ─────────────────────────
 
 function isWithinPeriod(dateStr: string, period: HistoryFilterValues['period']): boolean {
   if (period === 'todos') return true;
@@ -71,7 +50,7 @@ const INITIAL_FILTERS: HistoryFilterValues = {
 };
 
 export function HistoryFeature() {
-  const { patientExams } = useExams();
+  const { exams, isLoading, error } = useHistory();
 
   const [filters, setFilters] = useState<HistoryFilterValues>(INITIAL_FILTERS);
   const [page, setPage] = useState(0);
@@ -80,16 +59,14 @@ export function HistoryFeature() {
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
   const [selectedExam, setSelectedExam] = useState<HistoryExam | null>(null);
 
-  const allExams = useMemo(() => buildAllExams(patientExams), [patientExams]);
-
   const examTypes = useMemo(
-    () => [...new Set(allExams.map((e) => e.examType))].sort(),
-    [allExams]
+    () => [...new Set(exams.map((e) => e.examType))].sort(),
+    [exams],
   );
 
   const filtered = useMemo(() => {
     const q = filters.search.toLowerCase().trim();
-    const list = allExams.filter((exam) => {
+    const list = exams.filter((exam) => {
       if (q && !exam.patientName.toLowerCase().includes(q) && !exam.id.toLowerCase().includes(q)) return false;
       if (filters.status !== 'todos' && exam.status !== filters.status) return false;
       if (filters.examType !== 'todos' && exam.examType !== filters.examType) return false;
@@ -97,11 +74,11 @@ export function HistoryFeature() {
       return true;
     });
     return sortExams(list, sortField, sortDir);
-  }, [allExams, filters, sortField, sortDir]);
+  }, [exams, filters, sortField, sortDir]);
 
   const handleFilterChange = <K extends keyof HistoryFilterValues>(
     key: K,
-    value: HistoryFilterValues[K]
+    value: HistoryFilterValues[K],
   ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
     setPage(0);
@@ -122,10 +99,13 @@ export function HistoryFeature() {
           <Box>
             <Typography variant="h5" fontWeight={700}>Histórico de Exames</Typography>
             <Typography variant="body2" color="text.secondary">
-              {allExams.length} exame(s) registrado(s) no sistema
+              {isLoading ? 'Carregando...' : `${exams.length} exame(s) registrado(s) no sistema`}
             </Typography>
           </Box>
         </Stack>
+
+        {/* Erro */}
+        {error && <Alert severity="error">{error}</Alert>}
 
         {/* Card principal */}
         <Card>
@@ -139,17 +119,23 @@ export function HistoryFeature() {
 
           <Divider />
 
-          <HistoryTable
-            exams={filtered}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            sortField={sortField}
-            sortDir={sortDir}
-            onPageChange={setPage}
-            onRowsPerPageChange={setRowsPerPage}
-            onSort={handleSort}
-            onViewExam={setSelectedExam}
-          />
+          {isLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 6 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <HistoryTable
+              exams={filtered}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              sortField={sortField}
+              sortDir={sortDir}
+              onPageChange={setPage}
+              onRowsPerPageChange={setRowsPerPage}
+              onSort={handleSort}
+              onViewExam={setSelectedExam}
+            />
+          )}
         </Card>
       </Stack>
 

@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Chip,
+  CircularProgress,
   InputAdornment,
   List,
   ListItemButton,
@@ -13,7 +14,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { MOCK_PATIENTS } from '@/features/patients/data/mockPatients';
+import { usePatients } from '@/hooks/usePatients';
 
 interface PatientSelectStepProps {
   selectedPatientId: string;
@@ -21,20 +22,21 @@ interface PatientSelectStepProps {
 }
 
 export function PatientSelectStep({ selectedPatientId, onSelect }: PatientSelectStepProps) {
+  const { patients, isLoading } = usePatients();
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    if (!q) return MOCK_PATIENTS;
-    return MOCK_PATIENTS.filter(
+    if (!q) return patients;
+    return patients.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.cpf.includes(q) ||
-        p.id.toLowerCase().includes(q)
+        String(p.id).toLowerCase().includes(q),
     );
-  }, [search]);
+  }, [search, patients]);
 
-  const selected = MOCK_PATIENTS.find((p) => p.id === selectedPatientId);
+  const selected = patients.find((p) => String(p.id) === selectedPatientId);
 
   return (
     <Stack spacing={2.5}>
@@ -77,63 +79,67 @@ export function PatientSelectStep({ selectedPatientId, onSelect }: PatientSelect
           overflowY: 'auto',
         }}
       >
-        <List dense disablePadding>
-          {filtered.length === 0 ? (
-            <Box sx={{ py: 4, textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                Nenhum paciente encontrado.
-              </Typography>
-            </Box>
-          ) : (
-            filtered.map((patient, idx) => {
-              const isSelected = patient.id === selectedPatientId;
-              return (
-                <ListItemButton
-                  key={patient.id}
-                  selected={isSelected}
-                  onClick={() => onSelect(patient.id)}
-                  divider={idx < filtered.length - 1}
-                  sx={{
-                    px: 2,
-                    py: 1.2,
-                    '&.Mui-selected': {
-                      bgcolor: 'primary.main',
-                      color: 'primary.contrastText',
-                      '&:hover': { bgcolor: 'primary.dark' },
-                    },
-                  }}
-                >
-                  <ListItemText
-                    primary={
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        <Typography variant="body2" fontWeight={600}>
-                          {patient.name}
-                        </Typography>
-                        <Chip
-                          label={patient.id}
-                          size="small"
-                          sx={{
-                            fontSize: '0.68rem',
-                            height: 18,
-                            bgcolor: isSelected ? 'rgba(255,255,255,0.2)' : undefined,
-                            color: isSelected ? 'inherit' : undefined,
-                          }}
-                        />
-                      </Stack>
+        {isLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress size={28} />
+          </Box>
+        ) : (
+          <List dense disablePadding>
+            {filtered.length === 0 ? (
+              <Box sx={{ py: 4, textAlign: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  Nenhum paciente encontrado.
+                </Typography>
+              </Box>
+            ) : (
+              filtered.map((patient, idx) => {
+                const isSelected = String(patient.id) === selectedPatientId;
+                return (
+                  <ListItemButton
+                    key={patient.id}
+                    selected={isSelected}
+                    onClick={() => onSelect(String(patient.id))}
+                    divider={idx < filtered.length - 1}
+                    sx={{
+                      px: 2,
+                      py: 1.2,
+                      '&.Mui-selected': {
+                        bgcolor: 'primary.main',
+                        color: 'primary.contrastText',
+                        '&:hover': { bgcolor: 'primary.dark' },
+                      },
+                    }}
+                  >
+                    <ListItemText
+                      primary={
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          <Typography variant="body2" fontWeight={600}>
+                            {patient.name}
+                          </Typography>
+                          <Chip
+                            label={`#${patient.id}`}
+                            size="small"
+                            sx={{
+                              fontSize: '0.68rem',
+                              height: 18,
+                              bgcolor: isSelected ? 'rgba(255,255,255,0.2)' : undefined,
+                              color: isSelected ? 'inherit' : undefined,
+                            }}
+                          />
+                        </Stack>
+                      }
+                      secondary={
+                      <Typography variant="caption" color={isSelected ? 'inherit' : 'text.secondary'} sx={{ opacity: isSelected ? 0.85 : 1 }}>
+                        {patient.cpf} · {patient.age} anos · {patient.totalExams} exame(s)
+                      </Typography>
                     }
-                    secondary={
-                      !isSelected ? (
-                        <Typography variant="caption" color="text.secondary">
-                          {patient.cpf} · {patient.age} anos · {patient.totalExams} exame(s)
-                        </Typography>
-                      ) : null
-                    }
-                  />
-                </ListItemButton>
-              );
-            })
-          )}
-        </List>
+                    />
+                  </ListItemButton>
+                );
+              })
+            )}
+          </List>
+        )}
       </Box>
     </Stack>
   );
