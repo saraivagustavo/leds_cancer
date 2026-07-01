@@ -2,7 +2,7 @@ import { api } from './api';
 import type { Patient, PatientExam } from '@/types/patient';
 import type { ExamStatus } from '@/types/dashboard';
 
-// ─── Tipo que a API retorna (snake_case) ──────────────────────────────────────
+// ─── Tipo que a API retorna ──────────────────────────────────────
 
 interface ApiPatient {
   id: number;

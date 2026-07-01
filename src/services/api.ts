@@ -17,14 +17,11 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ─── Interceptor de response: tenta renovar o token quando recebe 401 ─────────
-
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Evita loop infinito: só tenta refresh uma vez
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -39,7 +36,6 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${data.access}`;
           return api(originalRequest);
         } catch {
-          // Refresh falhou — limpa tokens e força novo login
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           window.location.href = '/';

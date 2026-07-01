@@ -1,5 +1,6 @@
 import { Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import type { NewAnalysisFormData, BreastSide, ExamTechnique } from '@/types/analysis';
+import { PhysicianAutocomplete } from './PhysicianAutocomplete';
 
 const TECHNIQUES: { value: ExamTechnique; label: string }[] = [
   { value: 'digital',          label: 'Mamografia Digital (2D)' },
@@ -79,13 +80,11 @@ export function ExamDataStep({ values, onChange, errors }: ExamDataStepProps) {
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            label="Médico Solicitante"
+          <PhysicianAutocomplete
             value={values.requestingPhysician}
-            onChange={(e) => onChange('requestingPhysician', e.target.value)}
+            onChange={(val) => onChange('requestingPhysician', val)}
             error={!!errors.requestingPhysician}
             helperText={errors.requestingPhysician}
-            slotProps={{ htmlInput: { 'aria-label': 'Médico solicitante' } }}
           />
         </Grid>
 
@@ -93,11 +92,21 @@ export function ExamDataStep({ values, onChange, errors }: ExamDataStepProps) {
           <TextField
             label="Histórico Clínico / Observações"
             multiline
-            rows={4}
+            minRows={4}
             value={values.clinicalHistory}
             onChange={(e) => onChange('clinicalHistory', e.target.value)}
             placeholder="Descreva sintomas, histórico familiar, procedimentos anteriores..."
-            slotProps={{ htmlInput: { 'aria-label': 'Histórico clínico e observações' } }}
+            slotProps={{
+              htmlInput: { 'aria-label': 'Histórico clínico e observações' },
+              input: { sx: { alignItems: 'flex-start' } },
+            }}
+            sx={{
+              '& .MuiInputBase-inputMultiline': {
+                resize: 'vertical',
+                minHeight: 96,
+                overflow: 'auto !important',
+              },
+            }}
           />
         </Grid>
       </Grid>
